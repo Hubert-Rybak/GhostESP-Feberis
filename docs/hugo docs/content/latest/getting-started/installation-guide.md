@@ -15,7 +15,7 @@ The flasher asks for your **chip family**, not your board name. Look your board 
 | Cardputer, T-Deck, TEmbed, CrowPanel Advance, Lolin S3 Pro, Banshee S3, ACE S3, Waveshare/Crowtech/Sunton 7″ | **ESP32-S3** |
 | Marauder V8, Marauder Pancake, Poltergeist, T-Dongle-C5, Banshee C5, ACE C5, NM-CYD-C5 | **ESP32-C5** |
 | GhostBoard | **ESP32-C6** |
-| MarauderV4, Marauder V6, CYD boards, Minion, JCMK DevBoardPro, Feberis Pro | **ESP32** |
+| MarauderV4, Marauder V6, CYD boards, Minion, JCMK DevBoardPro, Feberis, Feberis Pro | **ESP32** |
 | Awok V5, AwokMini, Flipper JCMK GPS | **ESP32-S2** |
 | CrowPanel Advanced P4 | **ESP32-P4** |
 | GhostLink P1 Peer | **ESP32-C3** |
@@ -45,3 +45,4 @@ GhostESP then boots and creates a Wi-Fi access point named `GhostNet` with passw
 - [Try your first scan]({{< relref "first-scan.md" >}})
 - [Manual USB flashing]({{< relref "manual-flashing.md" >}})
 - [Flash with Flipper Zero]({{< relref "flipper-flashing.md" >}})
+- [Flash BPM Circuits Feberis / Feberis Pro]({{< relref "feberis.md" >}})

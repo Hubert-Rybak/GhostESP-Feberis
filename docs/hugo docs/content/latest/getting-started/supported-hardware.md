@@ -83,6 +83,8 @@ GhostESP runs on a variety of ESP32 boards with varying feature support. This co
       <tr><th scope="row">Marauder V8</th><td>✓</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✓</td><td>Manual</td><td>✓</td><td>✗</td></tr>
       <tr><th scope="row">Marauder Pancake</th><td>✓</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✓</td><td>Manual</td><td>✓</td><td>✗</td></tr>
       <tr><th scope="row">MarauderV6</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>Manual</td><td>✗</td><td>✗</td></tr>
+      <tr><th scope="row">Feberis</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>Manual</td><td>✗</td><td>✗</td></tr>
+      <tr><th scope="row">Feberis Pro</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✗</td><td>Manual</td><td>✗</td><td>✗</td></tr>
       <tr><th scope="row">AwokMini</th><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>Manual</td><td>✓</td><td>✗</td></tr>
       <tr><th scope="row">Awok V5</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>Manual</td><td>✗</td><td>✗</td></tr>
       <tr><th scope="row">T-Dongle-S3</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td><td>✓</td><td>✗</td><td>✗</td></tr>
@@ -167,6 +169,8 @@ The following table lists the vendor-specific boards supported by GhostESP with 
 | M5Stack AtomS3R | ESP32-S3 | `M5Stack_AtomS3R.zip` | |
 | MarauderV4 | ESP32 | `MarauderV4_FlipperHub.zip` | |
 | Marauder V6 & AwokDual | ESP32 | `MarauderV6_AwokDual.zip` | |
+| BPM Circuits Feberis | ESP32 | `Feberis.zip` - see the [Feberis flashing guide]({{< relref "feberis.md" >}}) | |
+| BPM Circuits Feberis Pro | ESP32 | `FeberisPro.zip` - see the [Feberis flashing guide]({{< relref "feberis.md" >}}) | |
 | Marauder V8 | ESP32-C5 | `MarauderV8.zip` | |
 | Marauder Pancake | ESP32-C5 | `MarauderPancake.zip` | |
 | AwokMini | ESP32-S2 | `AwokMini.zip` | |

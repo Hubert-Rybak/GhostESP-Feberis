@@ -33,6 +33,8 @@ If you prefer to flash the individual files, use the offsets below. The **bootlo
 
 Check the **OTA** column in [Supported Hardware]({{< relref "supported-hardware.md" >}}): `✓` means the release uses a dual-partition layout, so `firmware.bin` usually belongs at `0x20000`, and `Manual` builds use the single-app layout at `0x10000`. Some OTA boards use a custom offset instead: S3TWatch uses `0x800000`, the C5 flash-XIP builds (NM-CYD-C5, T-Dongle-C5) use `0x500000`, and CrowPanel P4 builds use `0x490000`. If you are unsure which you have, flash `merged.bin` instead.
 
+> **BPM Circuits Feberis / Feberis Pro:** follow the [Feberis flashing guide]({{< relref "feberis.md" >}}). When installing over stock Marauder firmware, flash `bootloader.bin`, `partitions.bin`, and `firmware.bin` together; do not do a FirmwareA-only update.
+
 > **ESP32-C5 note:** the C5 ROM expects the bootloader at `0x2000`, not `0x1000` or `0x0`. Some third-party flasher instructions still say `0x0` for C5 boards - that will not boot.
 
 ## Troubleshooting

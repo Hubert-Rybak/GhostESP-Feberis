@@ -19,6 +19,9 @@ Use a Flipper Zero as the programmer for a compatible ESP32 board when you prefe
 1. Install the GhostESP `.fap` on the Flipper SD card.
 2. Download and extract the matching GhostESP firmware archive.
 3. Copy its three `.bin` files to `SDCard/apps_data/esp_flasher/`. Do not place them in `assets/`.
+
+   > **Feberis / Feberis Pro:** use the board-specific `Feberis.zip` or `FeberisPro.zip` artifacts and follow the [Feberis flashing guide]({{< relref "feberis.md" >}}). The first install from stock Marauder requires a full component flash, not FirmwareA-only.
+
 4. Wire the ESP32 to the Flipper GPIO pins.
 5. Put the ESP32 into bootloader mode: hold **BOOT**, connect USB, then release **BOOT**.
 6. Open the **ESP flasher** app on the Flipper and choose **Manual Flash**.

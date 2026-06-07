@@ -59,8 +59,10 @@ Use this method if you prefer manual control or the web flasher doesn't work.
 
    | Chip | `bootloader.bin` | `partitions.bin` | `firmware.bin` |
    |------|------------------|------------------|----------------|
-   | ESP32-S2 | `0x1000` | `0x8000` | `0x10000` |
+   | ESP32 / ESP32-S2 | `0x1000` | `0x8000` | `0x10000` |
    | ESP32-S3 / C3 / C6 | `0x0` | `0x8000` | `0x10000` |
+
+   - **BPM Circuits Feberis / Feberis Pro:** follow the [Feberis flashing guide]({{< relref "feberis.md" >}}). When installing over stock Marauder firmware, flash `bootloader.bin`, `partitions.bin`, and `firmware.bin` together; do not do a FirmwareA-only update.
 
    - Click **Flash** and wait for completion.
 
@@ -81,6 +83,8 @@ Flash GhostESP using your Flipper Zero as the programmer. No PC required.
    - Go to **[GhostESP Releases](https://github.com/GhostESP-Revival/GhostESP/releases)**.
    - Download the `.zip` file that matches your ESP32 chip (e.g., `esp32-generic.zip` for a generic ESP32).
    - Extract the `.zip` file.
+
+   > **Feberis / Feberis Pro:** use the board-specific `Feberis.zip` or `FeberisPro.zip` artifacts and follow the [Feberis flashing guide]({{< relref "feberis.md" >}}). The first install from stock Marauder requires a full component flash, not FirmwareA-only.
 
 3. **Copy firmware files to Flipper**
    - Use **qFlipper** or pull out the Flipper's SD card and insert it into your computer.
