@@ -19,40 +19,54 @@ An open-source wireless platform for ESP32 devices. Built on ESP-IDF.
 
 ## Flashing Feberis / Feberis Pro with Flipper Zero
 
-These Feberis builds can be flashed from a Flipper Zero with the **ESP Flasher** app, following the same flow documented by Sapsan for FEBERIS / NetNinja updates.
+These Feberis builds can be flashed from a Flipper Zero with the **ESP Flasher** app, following the same hardware preparation flow documented by Sapsan for FEBERIS / NetNinja updates.
 
 > If your Feberis already works and you do not need this GhostESP build, you do not have to update it. Flash at your own risk and make sure you choose the artifact for your exact board.
+>
+> **Important:** for the first GhostESP install over stock BPM Circuits Marauder firmware, do **not** flash `firmware.bin` as a FirmwareA-only update. Stock Marauder Feberis releases use a smaller OTA app slot, while this GhostESP build uses a larger single-app partition table. Flash `bootloader.bin`, `partitions.bin`, and `firmware.bin` together as described below.
 
 ### 1. Download the right artifact
 
 Open the latest successful [**Build Feberis firmware** workflow run](https://github.com/Hubert-Rybak/GhostESP-Feberis/actions/workflows/build_feberis.yml?query=branch%3Afeberis) on this repository's `feberis` branch and download one of these ZIP artifacts:
 
-- **Feberis:** download `Feberis-zip`, then extract `firmware.bin` from `Feberis.zip`.
-- **Feberis Pro:** download `FeberisPro-zip`, then extract `firmware.bin` from `FeberisPro.zip`.
+- **Feberis:** download `Feberis-zip`, then extract `bootloader.bin`, `partitions.bin`, and `firmware.bin` from `Feberis.zip`.
+- **Feberis Pro:** download `FeberisPro-zip`, then extract `bootloader.bin`, `partitions.bin`, and `firmware.bin` from `FeberisPro.zip`.
 
-For the Flipper **FirmwareA** update method, use the extracted `firmware.bin` app image. The separate `Feberis-merged-gesp.bin` / `FeberisPro-merged-gesp.bin` artifacts are full merged images intended for full-chip flashing at offset `0x0` with tools such as `esptool`, not for the FirmwareA-only ESP Flasher slot.
+The separate `Feberis-merged-gesp.bin` / `FeberisPro-merged-gesp.bin` artifacts are full merged images intended for full-chip flashing at offset `0x0` with tools such as `esptool`. Do not put a merged image into the Flipper FirmwareA slot.
 
-### 2. Copy the firmware to the Flipper SD card
+### 2. Copy the firmware files to the Flipper SD card
 
-Copy the selected `.bin` file to:
+Copy these three extracted files to:
 
 ```text
 SD Card/apps_data/esp_flasher/
 ```
 
-You may rename it to something descriptive before copying, for example `GhostESP-Feberis.bin` or `GhostESP-FeberisPro.bin`.
+Required files:
+
+- `bootloader.bin`
+- `partitions.bin`
+- `firmware.bin`
+
+You may rename `firmware.bin` to something descriptive before copying, for example `GhostESP-Feberis.bin` or `GhostESP-FeberisPro.bin`, but keep track of which file you select for the `FirmwareA` slot.
 
 ### 3. Connect and prepare Feberis
 
 1. Connect FEBERIS / Feberis Pro to the Flipper Zero GPIO pins.
-2. Turn on **ESP32 mode** on the Feberis board.
-3. On the Flipper Zero, open:
+2. Turn on **ESP32 mode** on the Feberis board. For Feberis Pro, set the switches to the ESP32 + GPS mode before flashing.
+3. On the Flipper Zero, open the ESP Flasher app and choose the manual flash/options screen:
 
 ```text
-Apps -> GPIO -> ESP Flasher -> Flash ESP -> FirmwareA
+Apps -> GPIO -> ESP Flasher -> Flash ESP
 ```
 
-4. Select the `.bin` file you copied to `apps_data/esp_flasher`.
+4. Select the files for these slots:
+
+- **Bootloader (0x1000):** `bootloader.bin`
+- **Part Table (0x8000):** `partitions.bin`
+- **FirmwareA (0x10000):** `firmware.bin` or your renamed GhostESP Feberis `.bin`
+
+Leave `FirmwareB`, `boot_app0`, `NVS`, and `Custom` unselected unless you know exactly why you need them.
 
 ### 4. Enter bootloader mode before flashing
 
