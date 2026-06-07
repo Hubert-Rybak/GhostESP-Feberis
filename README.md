@@ -85,6 +85,8 @@ Immediately before starting the flash, put the Feberis into bootloader mode:
 
 Reference: [Sapsan: How to update your FEBERIS / NetNinja](https://sapsan-sklep.pl/blogs/artykuly/how-to-update-your-feberis-netninja)
 
+Full docs page: [`docs/hugo docs/content/latest/getting-started/feberis.md`](docs/hugo%20docs/content/latest/getting-started/feberis.md)
+
 ---
 
 ## Features

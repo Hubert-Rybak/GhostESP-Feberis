@@ -199,6 +199,8 @@ GhostESP runs on a variety of ESP32 boards with varying feature support. This co
       <tr><th scope="row">Cardputer ADV</th><td>✓</td><td>✗</td><td>✓</td><td>✓</td><td>✗</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
       <tr><th scope="row">MarauderV4</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✗</td></tr>
       <tr><th scope="row">MarauderV6</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✗</td></tr>
+      <tr><th scope="row">Feberis</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td></tr>
+      <tr><th scope="row">Feberis Pro</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✗</td></tr>
       <tr><th scope="row">AwokMini</th><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✗</td></tr>
       <tr><th scope="row">Awok V5</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✗</td></tr>
       <tr><th scope="row">T-Display S3 Touch</th><td>✓</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td><td>✓</td></tr>
@@ -254,6 +256,8 @@ The following table lists the vendor-specific boards supported by GhostESP with 
       <tr><td>Cardputer ADV</td><td><code>CardputerADV.zip</code></td><td></td></tr>
       <tr><td>MarauderV4</td><td><code>MarauderV4_FlipperHub.zip</code></td><td></td></tr>
       <tr><td>MarauderV6 & AwokDual</td><td><code>MarauderV6_AwokDual.zip</code></td><td></td></tr>
+      <tr><td>BPM Circuits Feberis</td><td><code>Feberis.zip</code> — see <a href="../feberis/">flashing guide</a></td><td></td></tr>
+      <tr><td>BPM Circuits Feberis Pro</td><td><code>FeberisPro.zip</code> — see <a href="../feberis/">flashing guide</a></td><td></td></tr>
       <tr><td>AwokMini</td><td><code>AwokMini.zip</code></td><td></td></tr>
       <tr><td>Awok V5</td><td><code>esp32v5_awok.zip</code></td><td></td></tr>
       <tr><td>T-Display S3 Touch</td><td><code>LilyGo-TDisplayS3-Touch.zip</code></td><td></td></tr>

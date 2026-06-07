@@ -21,6 +21,7 @@ The following ESP32 models and boards are officially supported:
 - **ESP32-S3-Cardputer**: Compact design with built-in display and keyboard
 - **ESP32-S3-Cardputer ADV**: Advanced Cardputer variant
 - **MarauderV4 & MarauderV6**: 240x320 touchscreen models
+- **BPM Circuits Feberis & Feberis Pro**: Flipper Zero GPIO add-on boards; Feberis Pro includes GPS support
 - **AwokMini**: 128x128 display with joystick navigation
 - **Awok ESP32 v5**
 - **LilyGo T-Watch S3**

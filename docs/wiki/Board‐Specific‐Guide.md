@@ -39,6 +39,30 @@ Supported variants:
 - AwokMini: 128x128 display with joystick
 - Awok V5
 
+### BPM Circuits Feberis / Feberis Pro
+
+BPM Circuits Feberis boards are Flipper Zero GPIO add-ons based on the classic ESP32.
+
+Supported build artifacts:
+
+- **Feberis:** `Feberis.zip`
+- **Feberis Pro:** `FeberisPro.zip`
+- **PC full-image flashing:** `Feberis-merged-gesp.bin` or `FeberisPro-merged-gesp.bin`
+
+Feature notes:
+
+- Both builds enable the onboard NeoPixel/RGB LED on GPIO25.
+- Both builds enable GhostESP NFC/Chameleon-related features.
+- Feberis Pro enables GPS on UART RX GPIO4 at 9600 baud.
+- Feberis has GPS disabled.
+- Display, keyboard, SD card, battery monitor, and infrared transmitter are not enabled for these builds.
+
+First-install warning:
+
+- If you are moving from stock BPM Circuits Marauder firmware to GhostESP, do **not** flash only `firmware.bin` as a FirmwareA-only update.
+- Flash `bootloader.bin` at `0x1000`, `partitions.bin` at `0x8000`, and `firmware.bin` at `0x10000`, or flash the merged image at `0x0` from a PC.
+- The stock Marauder Feberis OTA app slot is smaller than this GhostESP app image, so app-only flashing can boot loop until recovered with a full flash.
+
 ### Rabbit Labs GhostESP Board
 
 - ESP32-C6 based
@@ -74,7 +98,7 @@ Standard ESP32 models, with varying compatibility:
 Feature notes:
 - SD card support:
     - Full support: CYD boards, Cardputer
-    - Not supported: Marauder V6, Awok Dual Touch, Awok Mini
+    - Not supported: Marauder V6, Awok Dual Touch, Awok Mini, Feberis, Feberis Pro
 - Standby mode is available for non-touch displays.
 - Power saving mode is available on Cardputer, S3TWatch, and LilyGo TEmbed C1101.
 
@@ -92,7 +116,7 @@ Feature notes:
 
 ## Known Limitations
 
-- No SD card support on Marauder V6, Awok variants
+- No SD card support on Marauder V6, Awok variants, Feberis, or Feberis Pro
 - ESP32S2 boards do not support Bluetooth
 - Infrared (IR) functionality is available only on supported devices.
 

@@ -23,6 +23,8 @@ Choose your preferred method:
 - [USB Connection Method](#usb-connection-method)
 - [Flipper Zero Method](#flipper-zero-method)
 
+> **BPM Circuits Feberis / Feberis Pro:** when installing GhostESP over stock Marauder firmware for the first time, do **not** use a FirmwareA-only update. Flash `bootloader.bin`, `partitions.bin`, and `firmware.bin` together, or use a full merged image from a PC. See [Board-Specific Guide](Board‐Specific‐Guide.md#bpm-circuits-feberis--feberis-pro).
+
 ### Web Flasher Method
 
 1. **Prepare for Flashing**
@@ -70,7 +72,7 @@ This method is suitable for boards equipped with either a Micro USB or USB-C por
    - Go to [ESP Huhn Flashing Tool](https://esp.huhn.me/) and click on "Connect".
    - Select the COM port that your board is connected to. It should be labeled with your board's chipset, like "ESP32-S2".
    - **Important Offsets:**
-     - For **ESP32-S2** and similar boards, use the following offsets:
+     - For **ESP32**, **ESP32-S2**, and Feberis / Feberis Pro boards, use the following offsets:
        - `bootloader.bin` at `0x1000`
        - `partitions.bin` at `0x8000`
        - `firmware.bin` at `0x10000`
@@ -92,6 +94,7 @@ This method is suitable for boards equipped with either a Micro USB or USB-C por
 1. **Prepare the Firmware Files**
    - Extract the downloaded firmware files using [7-Zip](https://www.7-zip.org/download.html) or a similar tool.
    - Use the firmware file that aligns with the ESP chip your board uses! ex. Flipper zero dev board is esp32s2 generic.
+   - For **Feberis**, use `Feberis.zip`; for **Feberis Pro**, use `FeberisPro.zip`. Extract `bootloader.bin`, `partitions.bin`, and `firmware.bin`.
 
 1. **Transfer Files to Flipper Zero**
    - Ensure you have [qFlipper](https://flipperzero.one/update) installed on your PC.
@@ -108,7 +111,7 @@ This method is suitable for boards equipped with either a Micro USB or USB-C por
    - Select **Manual Flash** to flash each firmware component:
       - Choose the appropriate `bootloader.bin`, `partitions.bin`, and `GhostESP.bin` files.
       - **Important Offsets:**
-         - For **ESP32-S2** and similar boards, use the following offsets:
+         - For **ESP32**, **ESP32-S2**, and Feberis / Feberis Pro boards, use the following offsets:
             - `bootloader.bin` at `0x1000`
             - `partitions.bin` at `0x8000`
             - `firmware.bin` at `0x10000`
@@ -117,6 +120,20 @@ This method is suitable for boards equipped with either a Micro USB or USB-C por
             - Continue using `0x8000` for `partitions.bin` and `0x10000` for `firmware.bin`.
    - Initiate the flash process and wait until it completes.
    - Reset your ESP32 after completion to finalize the installation.
+
+### Feberis / Feberis Pro quick Flipper checklist
+
+Use this checklist for the BPM Circuits boards:
+
+1. Copy `bootloader.bin`, `partitions.bin`, and `firmware.bin` to `SDCard/apps_data/esp_flasher/`.
+2. Set Feberis to ESP32 mode. For Feberis Pro, use ESP32 + GPS mode.
+3. In ESP Flasher manual/options mode, select:
+   - Bootloader `0x1000`: `bootloader.bin`
+   - Part Table `0x8000`: `partitions.bin`
+   - FirmwareA `0x10000`: `firmware.bin`
+4. Leave `FirmwareB`, `boot_app0`, `NVS`, and `Custom` empty unless you know why you need them.
+5. Enter Feberis bootloader mode immediately before flashing: hold **right**, hold **left**, release **right**, release **left**.
+6. Start **FLASH - fast** and verify the board boots after completion.
 
 ## Post-Installation
 
