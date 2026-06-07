@@ -84,6 +84,13 @@ RGBManager_t rgb_manager;  // Global instance for entire project
 int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3) { return 0; }
 static const char *TAG = "Main.c";
 
+#if defined(CONFIG_USING_SPI) || defined(CONFIG_USING_MMC) || \
+    defined(CONFIG_USING_MMC_1_BIT) || defined(CONFIG_IS_S3TWATCH)
+#define GHOSTESP_HAS_STORAGE_BACKEND 1
+#else
+#define GHOSTESP_HAS_STORAGE_BACKEND 0
+#endif
+
 static void print_boot_banner(void) {
     static const char *const banners[] = {
         BOOT_BANNER_BLOCK,
@@ -335,10 +342,14 @@ cleanup:
 
 static void deferred_sd_init_task(void *arg) {
     vTaskDelay(pdMS_TO_TICKS(2000));
+#if GHOSTESP_HAS_STORAGE_BACKEND
     ESP_LOGI(TAG, "Deferred SD Card init starting");
     sd_card_init();
 #if CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH
     coredump_autosave_on_boot();
+#endif
+#else
+    ESP_LOGI(TAG, "No SD/storage backend configured; skipping SD init");
 #endif
     vTaskDelete(NULL);
 }

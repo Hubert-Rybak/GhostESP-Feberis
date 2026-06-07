@@ -127,6 +127,12 @@ An app-only `firmware.bin` update at `0x10000` is only appropriate if the GhostE
 - Make sure you did not flash only `firmware.bin` over the stock Marauder partition table.
 - Make sure the artifact matches your board: `Feberis.zip` for Feberis, `FeberisPro.zip` for Feberis Pro.
 
+**`SD Card init failed` / `sd_config` NVS errors on boot**
+
+- Feberis and Feberis Pro do not expose an ESP32-connected SD card to GhostESP. The Flipper Zero SD card is separate.
+- Affected builds may print default SD/MMC/SPI pin configuration and then `SD Card init failed with loaded pins`; this is not a flashing failure.
+- Use a current Feberis artifact. Current builds skip SD initialization for these boards instead of probing non-existent SD pins.
+
 **GPS does not show data on Feberis Pro**
 
 - Confirm you flashed `FeberisPro.zip`, not `Feberis.zip`.
