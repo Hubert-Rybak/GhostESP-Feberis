@@ -129,9 +129,10 @@ An app-only `firmware.bin` update at `0x10000` is only appropriate if the GhostE
 
 **`SD Card init failed` / `sd_config` NVS errors on boot**
 
-- Feberis and Feberis Pro do not expose an ESP32-connected SD card to GhostESP. The Flipper Zero SD card is separate.
-- Affected builds may print default SD/MMC/SPI pin configuration and then `SD Card init failed with loaded pins`; this is not a flashing failure.
-- Use a current Feberis artifact. Current builds skip SD initialization for these boards instead of probing non-existent SD pins.
+- Feberis and Feberis Pro do not expose an SD/MMC card directly mounted by the ESP32 firmware as `/mnt/ghostesp`.
+- The GhostESP Flipper app can still persist streamed PCAP/CSV data to the Flipper Zero SD card; that Flipper-side file export is separate from ESP32 SD initialization.
+- Affected builds may print default SD/MMC/SPI pin configuration and then `SD Card init failed with loaded pins`; this is not a flashing failure and does not by itself mean Flipper-side file export is broken.
+- Use a current Feberis artifact. Current builds skip the ESP-mounted SD probe for these boards while keeping UART/Flipper file export available.
 
 **GPS does not show data on Feberis Pro**
 

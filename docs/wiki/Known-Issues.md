@@ -5,7 +5,7 @@
 
 
 1. **Display Color Inversion**: A number of CYDs invert colors by default
-2. **SD Card Support**: **Marauder V6**, **Generic ESP32** builds, **Awok variants**, **Feberis**, and **Feberis Pro** have no SD card support. On older Feberis builds, startup may print `SD Card init failed` after showing default `sd_config` pins; current Feberis builds skip SD initialization instead.
+2. **ESP-Mounted SD Card Support**: **Marauder V6**, **Generic ESP32** builds, **Awok variants**, **Feberis**, and **Feberis Pro** have no SD card mounted directly by the ESP32 firmware. On Feberis/Feberis Pro, the GhostESP Flipper app can still save streamed PCAP/CSV data to the Flipper Zero SD card over UART. Older Feberis builds may print `SD Card init failed` after showing default `sd_config` pins; current Feberis builds skip that ESP-mounted SD probe instead.
 3. **Feberis / Feberis Pro first install**: If installing GhostESP over stock BPM Circuits Marauder firmware, do not flash only `firmware.bin` as FirmwareA. Flash `bootloader.bin`, `partitions.bin`, and `firmware.bin` together because the stock Marauder OTA app slot is smaller than the GhostESP app image.
 4. **GPS Pin Limitations**: Some pins cannot be assigned as GPS input. Notably the Rabbit Labs Yapper board exhibits this behavior.
 5. **ESP32-S2 Bluetooth**: ESP32-S2 boards do not support Bluetooth functionality due to lack of hardware.

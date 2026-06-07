@@ -349,7 +349,7 @@ static void deferred_sd_init_task(void *arg) {
     coredump_autosave_on_boot();
 #endif
 #else
-    ESP_LOGI(TAG, "No SD/storage backend configured; skipping SD init");
+    ESP_LOGI(TAG, "No ESP-mounted SD backend configured; skipping ESP SD init");
 #endif
     vTaskDelete(NULL);
 }

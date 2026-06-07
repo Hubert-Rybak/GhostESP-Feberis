@@ -432,7 +432,7 @@ esp_err_t sd_card_init(void) {
   }
 
 #if !GHOSTESP_HAS_STORAGE_BACKEND
-  ESP_LOGI(TAG, "No SD/storage backend configured; skipping SD card init");
+  ESP_LOGI(TAG, "No ESP-mounted SD backend configured; skipping SD card init");
   return ESP_ERR_NOT_SUPPORTED;
 #endif
 
@@ -1531,7 +1531,7 @@ read_error:
 
 void sd_card_print_config() {
 #if !GHOSTESP_HAS_STORAGE_BACKEND
-  printf("Storage Configuration: no SD/storage backend configured for this build.\n");
+  printf("Storage Configuration: no ESP-mounted SD backend configured for this build.\n");
   return;
 #endif
 
