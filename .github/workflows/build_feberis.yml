@@ -1,0 +1,187 @@
+name: Build Feberis firmware
+
+on:
+  push:
+    branches:
+      - feberis
+      - main
+      - master
+      - Development-deki
+    paths:
+      - '.github/workflows/build_feberis.yml'
+      - 'CMakeLists.txt'
+      - 'main/**'
+      - 'components/**'
+      - 'configs/sdkconfig.feberis'
+      - 'configs/sdkconfig.feberispro'
+      - 'managed_components.yml'
+      - 'partitions.csv'
+      - 'dependencies.lock'
+  pull_request:
+    paths:
+      - '.github/workflows/build_feberis.yml'
+      - 'CMakeLists.txt'
+      - 'main/**'
+      - 'components/**'
+      - 'configs/sdkconfig.feberis'
+      - 'configs/sdkconfig.feberispro'
+      - 'managed_components.yml'
+      - 'partitions.csv'
+      - 'dependencies.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build-feberis:
+    name: Build ${{ matrix.target.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: Feberis
+            idf_target: esp32
+            sdkconfig_file: configs/sdkconfig.feberis
+            zip_name: Feberis.zip
+            merged_name: Feberis-merged-gesp.bin
+          - name: FeberisPro
+            idf_target: esp32
+            sdkconfig_file: configs/sdkconfig.feberispro
+            zip_name: FeberisPro.zip
+            merged_name: FeberisPro-merged-gesp.bin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Cache ESP-IDF
+        id: cache-idf
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/esp-idf
+            ~/.espressif
+          key: esp-idf-v6.0-${{ runner.os }}-feberis-v1
+          restore-keys: |
+            esp-idf-v6.0-${{ runner.os }}-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bison \
+            ccache \
+            cmake \
+            dfu-util \
+            flex \
+            g++ \
+            gcc \
+            git \
+            gperf \
+            libffi-dev \
+            libssl-dev \
+            make \
+            ninja-build \
+            python3-pip \
+            python3-setuptools \
+            wget \
+            zip
+
+      - name: Install ESP-IDF v6.0
+        if: steps.cache-idf.outputs.cache-hit != 'true'
+        run: |
+          git clone -b v6.0 --depth 1 --recursive https://github.com/espressif/esp-idf.git ~/esp-idf
+          ~/esp-idf/install.sh esp32
+
+      - name: Prepare sdkconfig
+        run: |
+          rm -f sdkconfig sdkconfig.defaults
+          cp "${{ matrix.target.sdkconfig_file }}" sdkconfig.defaults
+          cp "${{ matrix.target.sdkconfig_file }}" sdkconfig
+          printf "\n# CONFIG_FATFS_USE_DYN_BUFFERS is not set\n" >> sdkconfig.defaults
+          printf "\n# CONFIG_FATFS_USE_DYN_BUFFERS is not set\n" >> sdkconfig
+          printf "\n# CONFIG_ESP_GDBSTUB_ENABLED is not set\n" >> sdkconfig.defaults
+          printf "\n# CONFIG_ESP_GDBSTUB_ENABLED is not set\n" >> sdkconfig
+
+      - name: Patch ESP-IDF gdbstub source
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          path = Path(os.path.expanduser('~/esp-idf')) / 'components/esp_gdbstub/src/gdbstub.c'
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              '#if (CONFIG_ESP_SYSTEM_GDBSTUB_RUNTIME || CONFIG_ESP_GDBSTUB_SUPPORT_TASKS)',
+              '#if 1',
+          )
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Build firmware
+        env:
+          SDKCONFIG_DEFAULTS: sdkconfig.defaults
+          IDF_TARGET: ${{ matrix.target.idf_target }}
+        run: |
+          . ~/esp-idf/export.sh
+          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+          idf.py clean
+          idf.py build
+
+      - name: Package firmware artifacts
+        run: |
+          . ~/esp-idf/export.sh
+          artifact_dir="packaged_artifacts_${{ matrix.target.name }}"
+          mkdir -p "$artifact_dir"
+
+          cp build/partition_table/partition-table.bin "$artifact_dir/partitions.bin"
+          cp build/bootloader/bootloader.bin "$artifact_dir/bootloader.bin"
+          cp build/Ghost_ESP_IDF.bin "$artifact_dir/firmware.bin"
+          if [ -f build/Ghost_ESP_IDF.elf ]; then
+            cp build/Ghost_ESP_IDF.elf "$artifact_dir/${{ matrix.target.name }}.elf"
+          fi
+
+          flash_size=$(grep 'CONFIG_ESPTOOLPY_FLASHSIZE=' sdkconfig.defaults | cut -d'"' -f2)
+          flash_size=${flash_size:-4MB}
+          python3 -m esptool --chip "${{ matrix.target.idf_target }}" merge_bin \
+            --output "$artifact_dir/${{ matrix.target.merged_name }}" \
+            --flash_mode dio \
+            --flash_size "$flash_size" \
+            --target-offset 0x0 \
+            0x1000 "$artifact_dir/bootloader.bin" \
+            0x8000 "$artifact_dir/partitions.bin" \
+            0x10000 "$artifact_dir/firmware.bin"
+
+          (cd "$artifact_dir" && zip -9 "../${{ matrix.target.zip_name }}" *)
+          cp "$artifact_dir/${{ matrix.target.merged_name }}" "${{ matrix.target.merged_name }}"
+          sha256sum "${{ matrix.target.zip_name }}" "${{ matrix.target.merged_name }}" > "${{ matrix.target.name }}-SHA256SUMS.txt"
+          unzip -t "${{ matrix.target.zip_name }}"
+          ls -lh "${{ matrix.target.zip_name }}" "${{ matrix.target.merged_name }}" "${{ matrix.target.name }}-SHA256SUMS.txt"
+
+      - name: Upload ZIP package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target.name }}-zip
+          path: ${{ matrix.target.zip_name }}
+          if-no-files-found: error
+
+      - name: Upload merged BIN
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target.name }}-merged-bin
+          path: ${{ matrix.target.merged_name }}
+          if-no-files-found: error
+
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target.name }}-checksums
+          path: ${{ matrix.target.name }}-SHA256SUMS.txt
+          if-no-files-found: error

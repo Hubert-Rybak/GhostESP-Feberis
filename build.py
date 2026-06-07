@@ -385,6 +385,8 @@ def get_build_targets() -> List[Dict[str, str]]:
         {"name": "S3TWatch", "idf_target": "esp32s3", "sdkconfig_file": "configs/sdkconfig.S3TWatch", "zip_name": "LilyGo-S3TWatch-2020.zip"},
         {"name": "TDisplayS3-Touch", "idf_target": "esp32s3", "sdkconfig_file": "configs/sdkconfig.TDisplayS3-Touch", "zip_name": "LilyGo-TDisplayS3-Touch.zip"},
         {"name": "JCMK_DevBoardPro", "idf_target": "esp32", "sdkconfig_file": "configs/sdkconfig.JCMK_DevBoardPro", "zip_name": "JCMK_DevBoardPro.zip"},
+        {"name": "Feberis", "idf_target": "esp32", "sdkconfig_file": "configs/sdkconfig.feberis", "zip_name": "Feberis.zip"},
+        {"name": "FeberisPro", "idf_target": "esp32", "sdkconfig_file": "configs/sdkconfig.feberispro", "zip_name": "FeberisPro.zip"},
         {"name": "RabbitLabs_Minion", "idf_target": "esp32", "sdkconfig_file": "configs/sdkconfig.minion", "zip_name": "RabbitLabs_Minion.zip"},
         {"name": "Lolin_S3_Pro", "idf_target": "esp32s3", "sdkconfig_file": "configs/sdkconfig.lolins3pro", "zip_name": "Lolin_S3_Pro.zip"},
         {"name": "Cardputer ADV", "idf_target": "esp32s3", "sdkconfig_file": "configs/sdkconfig.cardputeradv", "zip_name": "CardputerADV.zip"}
