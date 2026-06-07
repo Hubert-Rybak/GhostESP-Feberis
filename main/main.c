@@ -663,7 +663,11 @@ static void deferred_sd_init_task(void *arg) {
     esp_err_t sd_init_ret = ESP_OK;
     MEASURE_INIT_RAM("SD Card init", sd_init_ret = sd_card_init());
     if (sd_init_ret != ESP_OK) {
-        ESP_LOGW(TAG, "Deferred SD Card init failed, skipping coredump autosave");
+        if (sd_init_ret == ESP_ERR_NOT_SUPPORTED) {
+            ESP_LOGI(TAG, "No ESP-mounted SD backend configured; skipping ESP SD init");
+        } else {
+            ESP_LOGW(TAG, "Deferred SD Card init failed, skipping coredump autosave");
+        }
 #ifdef CONFIG_WITH_SCREEN
         boot_status_set_progress(100.0f, "SD unavailable");
         boot_status_signal_completion();

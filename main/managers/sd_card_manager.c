@@ -45,6 +45,15 @@ static const char *NVS_NAMESPACE = "sd_config";
 static esp_err_t sdmmc_host_init_dummy(void) { return ESP_OK; }
 static esp_err_t sdmmc_host_deinit_dummy(void) { return ESP_OK; }
 #endif
+
+#if defined(CONFIG_USING_SPI) || defined(CONFIG_USING_MMC) || \
+    defined(CONFIG_USING_MMC_1_BIT) || defined(CONFIG_IS_S3TWATCH) || \
+    defined(CONFIG_IS_ATOMS3R)
+#define GHOSTESP_HAS_STORAGE_BACKEND 1
+#else
+#define GHOSTESP_HAS_STORAGE_BACKEND 0
+#endif
+
 static bool s_sd_log_levels_tuned = false;
 static SemaphoreHandle_t s_sd_jit_mutex = NULL;
 static uint32_t s_sd_jit_mount_depth = 0;
@@ -668,6 +677,11 @@ esp_err_t sd_card_init(void) {
     s_sd_log_levels_tuned = true;
   }
 
+#if !GHOSTESP_HAS_STORAGE_BACKEND
+  ESP_LOGI(TAG, "No SD/storage backend configured; skipping SD card init");
+  return ESP_ERR_NOT_SUPPORTED;
+#endif
+
   if (sd_card_manager.is_initialized) {
     ESP_LOGI(TAG, "sd_card_init: already initialized");
     return ESP_OK;
@@ -1247,6 +1261,11 @@ esp_err_t sd_card_mount_for_flush(bool *display_was_suspended) {
     xSemaphoreGiveRecursive(jit_mutex);
     return ESP_OK;
   }
+
+#if !GHOSTESP_HAS_STORAGE_BACKEND
+  xSemaphoreGiveRecursive(jit_mutex);
+  return ESP_ERR_NOT_SUPPORTED;
+#endif
 
 #if defined(CONFIG_USING_SPI)
   /* Only time-multiplex display SPI when the active display really shares the
@@ -2077,6 +2096,11 @@ read_error:
 }
 
 void sd_card_print_config() {
+#if !GHOSTESP_HAS_STORAGE_BACKEND
+  printf("Storage Configuration: no SD/storage backend configured for this build.\n");
+  return;
+#endif
+
 #if defined(CONFIG_IS_S3TWATCH) || defined(CONFIG_IS_ATOMS3R)
   if (s_virtual_storage_mounted) {
     printf("Storage Configuration: Virtual Flash Storage\n");
