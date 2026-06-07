@@ -17,6 +17,62 @@ An open-source wireless platform for ESP32 devices. Built on ESP-IDF.
 
 ---
 
+## Flashing Feberis / Feberis Pro with Flipper Zero
+
+These Feberis builds can be flashed from a Flipper Zero with the **ESP Flasher** app, following the same flow documented by Sapsan for FEBERIS / NetNinja updates.
+
+> If your Feberis already works and you do not need this GhostESP build, you do not have to update it. Flash at your own risk and make sure you choose the artifact for your exact board.
+
+### 1. Download the right artifact
+
+Open the latest successful [**Build Feberis firmware** workflow run](https://github.com/Hubert-Rybak/GhostESP-Feberis/actions/workflows/build_feberis.yml?query=branch%3Afeberis) on this repository's `feberis` branch and download one of these ZIP artifacts:
+
+- **Feberis:** download `Feberis-zip`, then extract `firmware.bin` from `Feberis.zip`.
+- **Feberis Pro:** download `FeberisPro-zip`, then extract `firmware.bin` from `FeberisPro.zip`.
+
+For the Flipper **FirmwareA** update method, use the extracted `firmware.bin` app image. The separate `Feberis-merged-gesp.bin` / `FeberisPro-merged-gesp.bin` artifacts are full merged images intended for full-chip flashing at offset `0x0` with tools such as `esptool`, not for the FirmwareA-only ESP Flasher slot.
+
+### 2. Copy the firmware to the Flipper SD card
+
+Copy the selected `.bin` file to:
+
+```text
+SD Card/apps_data/esp_flasher/
+```
+
+You may rename it to something descriptive before copying, for example `GhostESP-Feberis.bin` or `GhostESP-FeberisPro.bin`.
+
+### 3. Connect and prepare Feberis
+
+1. Connect FEBERIS / Feberis Pro to the Flipper Zero GPIO pins.
+2. Turn on **ESP32 mode** on the Feberis board.
+3. On the Flipper Zero, open:
+
+```text
+Apps -> GPIO -> ESP Flasher -> Flash ESP -> FirmwareA
+```
+
+4. Select the `.bin` file you copied to `apps_data/esp_flasher`.
+
+### 4. Enter bootloader mode before flashing
+
+Immediately before starting the flash, put the Feberis into bootloader mode:
+
+1. Press and hold the **right** button.
+2. While still holding the right button, press and hold the **left** button.
+3. Release the **right** button.
+4. Release the **left** button.
+
+### 5. Flash and verify
+
+1. In ESP Flasher, choose **FLASH - fast**.
+2. Wait until flashing completes.
+3. Verify the board by pressing the right button on FEBERIS / Feberis Pro and checking that the firmware starts normally.
+
+Reference: [Sapsan: How to update your FEBERIS / NetNinja](https://sapsan-sklep.pl/blogs/artykuly/how-to-update-your-feberis-netninja)
+
+---
+
 ## Features
 
 <details>
