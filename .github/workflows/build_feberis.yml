@@ -7,6 +7,8 @@ on:
       - main
       - master
       - Development-deki
+    tags:
+      - 'v*-feberis*'
     paths:
       - '.github/workflows/build_feberis.yml'
       - 'CMakeLists.txt'
@@ -69,9 +71,9 @@ jobs:
           path: |
             ~/esp-idf
             ~/.espressif
-          key: esp-idf-v6.0-${{ runner.os }}-feberis-v1
+          key: esp-idf-v6.1-${{ runner.os }}-feberis-v1
           restore-keys: |
-            esp-idf-v6.0-${{ runner.os }}-
+            esp-idf-v6.1-${{ runner.os }}-
 
       - name: Install system dependencies
         run: |
@@ -95,11 +97,38 @@ jobs:
             wget \
             zip
 
-      - name: Install ESP-IDF v6.0
+      - name: Install ESP-IDF v6.1
         if: steps.cache-idf.outputs.cache-hit != 'true'
         run: |
-          git clone -b v6.0 --depth 1 --recursive https://github.com/espressif/esp-idf.git ~/esp-idf
+          rm -rf ~/esp-idf
+          git clone -b v6.1 --depth 1 --recursive https://github.com/espressif/esp-idf.git ~/esp-idf
           ~/esp-idf/install.sh esp32
+
+      - name: Repair cached ESP-IDF Python environment if broken
+        if: steps.cache-idf.outputs.cache-hit == 'true'
+        run: |
+          # The cached venv's bin/python symlinks into the runner's Python
+          # toolcache (/opt/hostedtoolcache/Python/3.10.x/...). GitHub bumps
+          # the patch version on image updates, evicting the old path and
+          # breaking the symlink -- export.sh then fails with "virtual
+          # environment not found". Detect that and rebuild just the venv;
+          # the toolchains under ~/.espressif/tools stay cached, so this is
+          # fast (only pip installs the requirements).
+          # Derive the venv name the same way ESP-IDF does (idf_tools.py):
+          # idf{MAJOR.MINOR}_py{PY_MAJOR.MINOR}_env. Note: there is no
+          # version.txt at the repo root -- the version comes from the
+          # esp_idf_version.h header.
+          IDF_VER=$(sed -nE 's/^#define ESP_IDF_VERSION_(MAJOR|MINOR) +([0-9]+)/\2/p' \
+            ~/esp-idf/components/esp_common/include/esp_idf_version.h | paste -sd.)
+          PY_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+          VENV="$HOME/.espressif/python_env/idf${IDF_VER}_py${PY_VER}_env"
+          if [ -x "$VENV/bin/python" ]; then
+            echo "ESP-IDF Python env is usable: $VENV"
+          else
+            echo "Cached ESP-IDF Python env ($VENV) is missing or broken; recreating..."
+            rm -rf "$VENV"
+            ~/esp-idf/install.sh esp32
+          fi
 
       - name: Prepare sdkconfig
         run: |
@@ -111,18 +140,78 @@ jobs:
           printf "\n# CONFIG_ESP_GDBSTUB_ENABLED is not set\n" >> sdkconfig.defaults
           printf "\n# CONFIG_ESP_GDBSTUB_ENABLED is not set\n" >> sdkconfig
 
-      - name: Patch ESP-IDF gdbstub source
+      - name: Preserve custom Wi-Fi cache buffer count on ESP-IDF 6.1
         run: |
           python3 - <<'PY'
-          import os
           from pathlib import Path
-          path = Path(os.path.expanduser('~/esp-idf')) / 'components/esp_gdbstub/src/gdbstub.c'
-          text = path.read_text(encoding='utf-8')
-          text = text.replace(
-              '#if (CONFIG_ESP_SYSTEM_GDBSTUB_RUNTIME || CONFIG_ESP_GDBSTUB_SUPPORT_TASKS)',
-              '#if 1',
+          import re
+
+          defaults = Path("sdkconfig.defaults").read_text(encoding="utf-8")
+          match = re.search(r"^CONFIG_ESP_WIFI_CACHE_TX_BUFFER_NUM=(\d+)\s*$", defaults, re.MULTILINE)
+          if not match or match.group(1) == "32":
+              raise SystemExit(0)
+          value = match.group(1)
+          kconfig = Path.home() / "esp-idf/components/esp_wifi/Kconfig"
+          source = kconfig.read_text(encoding="utf-8")
+          pattern = re.compile(
+              r"(config ESP_WIFI_CACHE_TX_BUFFER_NUM\n"
+              r"(?:(?!\n\s*config ).)*?\n\s*default )32(\n)",
+              re.DOTALL,
           )
-          path.write_text(text, encoding='utf-8')
+          source, count = pattern.subn(
+              rf"\g<1>{value}\g<2>",
+              source,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("ESP-IDF Wi-Fi cache buffer Kconfig layout changed")
+          kconfig.write_text(source, encoding="utf-8")
+          PY
+
+      - name: Patch ESP-IDF gdbstub compatibility
+        env:
+          IDF_TARGET: ${{ matrix.target.idf_target }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          idf = Path.home() / "esp-idf"
+
+          gdbstub = idf / "components/esp_gdbstub/src/gdbstub.c"
+          source = gdbstub.read_text(encoding="utf-8")
+          helper_guard = re.compile(
+              r"#if\s*\(?\s*CONFIG_ESP_SYSTEM_GDBSTUB_RUNTIME\s*\|\|\s*CONFIG_ESP_GDBSTUB_SUPPORT_TASKS\s*\)?"
+          )
+          if helper_guard.search(source):
+              source = helper_guard.sub("#if 1", source)
+              gdbstub.write_text(source, encoding="utf-8")
+
+          if os.environ["IDF_TARGET"] in {"esp32", "esp32s2", "esp32s3"}:
+              xtensa = idf / "components/esp_gdbstub/src/port/xtensa/gdbstub_xtensa.c"
+              source = xtensa.read_text(encoding="utf-8")
+              source = source.replace("portNUM_PROCESSORS", "CONFIG_FREERTOS_NUMBER_OF_CORES")
+              source, tcb_count = re.subn(
+                  r"const\s+StaticTask_t\s*\*\s*tcb\s*;",
+                  "void *tcb = NULL;",
+                  source,
+              )
+              source, lookup_count = re.subn(
+                  r"tcb\s*=\s*esp_gdbstub_find_tcb_by_frame\s*\(frame\)\s*;",
+                  "",
+                  source,
+              )
+              source, call_count = re.subn(
+                  r"#if\s+(?:XCHAL_HAVE_FP|0)\s+(?=gdbstub_write_fpu_regs\s*\()",
+                  "#if 0\n    ",
+                  source,
+              )
+              if tcb_count != lookup_count or tcb_count not in {0, 1}:
+                  raise SystemExit(
+                      f"unexpected Xtensa FPU patch counts: tcb={tcb_count}, lookup={lookup_count}"
+                  )
+              xtensa.write_text(source, encoding="utf-8")
           PY
 
       - name: Build firmware
@@ -148,16 +237,21 @@ jobs:
             cp build/Ghost_ESP_IDF.elf "$artifact_dir/${{ matrix.target.name }}.elf"
           fi
 
-          flash_size=$(grep 'CONFIG_ESPTOOLPY_FLASHSIZE=' sdkconfig.defaults | cut -d'"' -f2)
-          flash_size=${flash_size:-4MB}
+          get_cfg() { sed -nE "s/^#define $1 \"([^\"]*)\"/\1/p" build/config/sdkconfig.h; }
+          flash_mode=$(get_cfg CONFIG_ESPTOOLPY_FLASHMODE)
+          flash_freq=$(get_cfg CONFIG_ESPTOOLPY_FLASHFREQ)
+          flash_size=$(get_cfg CONFIG_ESPTOOLPY_FLASHSIZE)
+          boot_offset=$(python3 scripts/partition_table.py bootloader-offset "${{ matrix.target.idf_target }}")
+          app_offset=$(python3 scripts/partition_table.py offset "$artifact_dir/partitions.bin")
+          echo "Bootloader offset: $boot_offset, app offset: $app_offset"
           python3 -m esptool --chip "${{ matrix.target.idf_target }}" merge_bin \
             --output "$artifact_dir/${{ matrix.target.merged_name }}" \
-            --flash_mode dio \
-            --flash_size "$flash_size" \
-            --target-offset 0x0 \
-            0x1000 "$artifact_dir/bootloader.bin" \
+            --flash_mode "${flash_mode:-dio}" \
+            --flash_freq "${flash_freq:-40m}" \
+            --flash_size "${flash_size:-4MB}" \
+            "$boot_offset" "$artifact_dir/bootloader.bin" \
             0x8000 "$artifact_dir/partitions.bin" \
-            0x10000 "$artifact_dir/firmware.bin"
+            "$app_offset" "$artifact_dir/firmware.bin"
 
           (cd "$artifact_dir" && zip -9 "../${{ matrix.target.zip_name }}" *)
           cp "$artifact_dir/${{ matrix.target.merged_name }}" "${{ matrix.target.merged_name }}"
@@ -185,3 +279,33 @@ jobs:
           name: ${{ matrix.target.name }}-checksums
           path: ${{ matrix.target.name }}-SHA256SUMS.txt
           if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build-feberis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          ls -lh dist
+          cat dist/*-SHA256SUMS.txt > dist/SHA256SUMS.txt
+          gh release create "$TAG" \
+            --repo "${{ github.repository }}" \
+            --title "GhostESP Feberis $TAG" \
+            --notes "GhostESP for BPM Circuits Feberis / Feberis Pro, rebuilt on upstream GhostESP-Revival \`Development-deki\`. See the README for Flipper Zero flashing steps. First install over stock Marauder: flash bootloader.bin, partitions.bin and firmware.bin together (not FirmwareA-only)." \
+            --prerelease \
+            dist/Feberis.zip dist/FeberisPro.zip \
+            dist/Feberis-merged-gesp.bin dist/FeberisPro-merged-gesp.bin \
+            dist/SHA256SUMS.txt

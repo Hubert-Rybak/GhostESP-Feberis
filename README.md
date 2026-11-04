@@ -63,7 +63,7 @@ These Feberis builds can be flashed from a Flipper Zero with the **ESP Flasher**
 
 ### 1. Download the right artifact
 
-Open the latest successful [**Build Feberis firmware** workflow run](https://github.com/Hubert-Rybak/GhostESP-Feberis/actions/workflows/build_feberis.yml?query=branch%3Afeberis) on this repository's `feberis` branch and download one of these ZIP artifacts:
+Download `Feberis.zip` or `FeberisPro.zip` from the latest [**GhostESP Feberis release**](https://github.com/Hubert-Rybak/GhostESP-Feberis/releases). Development builds are also available from the latest successful [**Build Feberis firmware** workflow run](https://github.com/Hubert-Rybak/GhostESP-Feberis/actions/workflows/build_feberis.yml?query=branch%3Afeberis) on this repository's `feberis` branch as ZIP artifacts:
 
 - **Feberis:** download `Feberis-zip`, then extract `bootloader.bin`, `partitions.bin`, and `firmware.bin` from `Feberis.zip`.
 - **Feberis Pro:** download `FeberisPro-zip`, then extract `bootloader.bin`, `partitions.bin`, and `firmware.bin` from `FeberisPro.zip`.
