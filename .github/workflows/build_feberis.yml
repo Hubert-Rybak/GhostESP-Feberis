@@ -31,6 +31,11 @@ on:
       - 'partitions.csv'
       - 'dependencies.lock'
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Create a GitHub Release with this tag (e.g. v2.2.3-feberis.1). Leave empty to only build.'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -282,7 +287,7 @@ jobs:
 
   release:
     name: Publish GitHub Release
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || inputs.release_tag != ''
     needs: build-feberis
     runs-on: ubuntu-latest
     permissions:
@@ -297,12 +302,13 @@ jobs:
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.release_tag || github.ref_name }}
         run: |
           ls -lh dist
           cat dist/*-SHA256SUMS.txt > dist/SHA256SUMS.txt
           gh release create "$TAG" \
             --repo "${{ github.repository }}" \
+            --target "${{ github.sha }}" \
             --title "GhostESP Feberis $TAG" \
             --notes "GhostESP for BPM Circuits Feberis / Feberis Pro, rebuilt on upstream GhostESP-Revival \`Development-deki\`. See the README for Flipper Zero flashing steps. First install over stock Marauder: flash bootloader.bin, partitions.bin and firmware.bin together (not FirmwareA-only)." \
             --prerelease \
